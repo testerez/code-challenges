@@ -17,30 +17,33 @@ const countries = [
   },
 ]
 
-
-const padRight = (s: string, lenght: number, padChar = ' ') =>
-  s + padChar.repeat(Math.max(0, lenght - s.length));
-
 const toLabel = value => value === undefined ? '' : '' + value;
 
-const toTable = (entries: any[]) => {
+const getColumnWidths = (entries: any[]) => {
   const cols = {};
   entries.forEach((entry) => {
     Object.keys(entry).forEach(k =>
       cols[k] = Math.max(cols[k] || 0, k.length, toLabel(entry[k]).length)
     );
   });
+  return cols;
+}
+
+const toTable = (entries: any[]) => {
+  const columWidths = getColumnWidths(entries);
+  const keys = Object.keys(columWidths);
+
   const renderRow = entry => {
     const content = keys.map(
-      k => padRight(toLabel(entry[k]), cols[k]),
+      k => toLabel(entry[k]).padEnd(columWidths[k]),
     ).join(' | ');
     return `| ${content} |`;
   }
   
-  const keys = Object.keys(cols);
   const headerRow = renderRow(
     keys.reduce((acc, k) => ({ ...acc, [k]: k }), {}),
   );
+  
   const hr = '-'.repeat(headerRow.length);
   return [
     hr,
